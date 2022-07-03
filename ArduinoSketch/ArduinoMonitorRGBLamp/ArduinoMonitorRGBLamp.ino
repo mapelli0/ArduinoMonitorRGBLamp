@@ -1,20 +1,22 @@
 #include <Arduino_APDS9960.h>
 #include <Adafruit_NeoPixel.h>
 #include <ArduinoBLE.h>
+#include <NanoBLEFlashPrefs.h>
 
 BLEService colorChangeService("180C");                                     // User defined service
 BLEStringCharacteristic colorChangeCharacteristic("2A56",                  // standard 16-bit characteristic UUID
                                                   BLERead | BLEWrite, 3);  // remote clients will only be able to read this
+NanoBLEFlashPrefs myFlashPrefs;
 
 #define LED_PIN 2
 #define NUM_LEDS 120
-#define saveColorAddressStart 0
-
-struct StripColor {
+typedef struct StripColorStruct {
   uint8_t r;
   uint8_t g;
   uint8_t b;
-};
+} flashPrefs;
+
+flashPrefs prefs;
 
 Adafruit_NeoPixel pixels(NUM_LEDS, LED_PIN, NEO_GRBW + NEO_KHZ800);
 
@@ -62,7 +64,7 @@ void setup() {
   //Serial.println("BLE Central - LED control");
 }
 
-void toggleLights(StripColor c = { 0, 0, 0 }) {
+void toggleLights(StripColorStruct c = { 0, 0, 0 }) {
   uint32_t colorStatus = pixels.getPixelColor(0);
   if (colorStatus == 0) {
     if ((c.r == 0) && (c.g == 0) && (c.b == 0)) {
@@ -96,7 +98,8 @@ void readGesture() {
 
       case GESTURE_RIGHT:
         //Serial.println("Detected gesture");
-        toggleLights();
+        myFlashPrefs.readPrefs(&prefs, sizeof(prefs));
+        toggleLights(prefs);
         break;
 
       default:
@@ -122,14 +125,17 @@ void tryReadBLE() {
       if (colorChangeCharacteristic.written()) {
         uint8_t value[3];
         colorChangeCharacteristic.readValue(value, 3);
-        StripColor c = { value[0], value[1], value[2] };
+        prefs.r = value[0];
+        prefs.g = value[1];
+        prefs.b = value[2];
+        myFlashPrefs.writePrefs(&prefs, sizeof(prefs));        
         // Serial.println("I received: ");
         // Serial.println(value[0]); //red
         // Serial.println(value[1]); //green
         // Serial.println(value[2]); //blue
 
 
-        toggleLights(c);
+        toggleLights(prefs);
       }
     }  // keep looping while connected
 
