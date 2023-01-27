@@ -64,18 +64,19 @@ void setup() {
   //Serial.println("BLE Central - LED control");
 }
 
-void toggleLights(StripColorStruct c = { 0, 0, 0 }) {
+void toggleLights(StripColorStruct c = { 0, 0, 0 }) {  
   uint32_t colorStatus = pixels.getPixelColor(0);
   if (colorStatus == 0) {
     if ((c.r == 0) && (c.g == 0) && (c.b == 0)) {
       c.r = 255;
       c.b = 255;
     }
-    pixels.fill(pixels.Color(c.r, c.g, c.b, 0), 0, 120);
+    //pixels.fill(pixels.Color(c.r, c.g, c.b, 0), 0, 120);
+    doubleChase(pixels.Color(c.r, c.g, c.b, 0), 15);
   } else {
-    pixels.fill(pixels.Color(0, 0, 0, 0), 0, 120);
-  }
-  pixels.show();
+    doubleChaseInverted(pixels.Color(0, 0, 0, 0), 15);
+    pixels.clear();
+  }  
 }
 
 void readGesture() {
@@ -143,6 +144,47 @@ void tryReadBLE() {
     // when the central disconnects, turn off the LED:
     digitalWrite(LEDB, HIGH);
   }
+}
+
+
+void doubleChase(uint32_t color, int wait) {  
+  for (int i = 0; i <= pixels.numPixels() / 2; i++){
+    pixels.setPixelColor(i, color);
+    pixels.setPixelColor(pixels.numPixels() - i, color);
+    pixels.show();
+    delay(wait);
+  }
+}
+
+void doubleChaseInverted(uint32_t color, int wait) {
+  for (int i = pixels.numPixels() / 2; i >=  0; i--){
+    pixels.setPixelColor(i, color);
+    pixels.setPixelColor(pixels.numPixels() - i, color);
+    pixels.show();
+    delay(wait);
+  }
+}
+
+
+// Theater-marquee-style chasing lights. Pass in a color (32-bit value,
+// a la strip.Color(r,g,b) as mentioned above), and a delay time (in ms)
+// between frames.
+void theaterChase(uint32_t color, int wait)
+{
+    for (int a = 0; a < 10; a++)
+    { // Repeat 10 times...
+        for (int b = 0; b < 3; b++)
+        {                  //  'b' counts from 0 to 2...
+            pixels.clear(); //   Set all pixels in RAM to 0 (off)
+            // 'c' counts up from 'b' to end of strip in steps of 3...
+            for (int c = b; c < pixels.numPixels(); c += 3)
+            {
+                pixels.setPixelColor(c, color); // Set pixel 'c' to value 'color'
+            }
+            pixels.show(); // Update strip with new contents
+            delay(wait);  // Pause for a moment
+        }
+    }
 }
 
 void loop() {
