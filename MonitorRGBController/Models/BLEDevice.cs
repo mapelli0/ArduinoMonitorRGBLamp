@@ -6,8 +6,13 @@ using Windows.Devices.Enumeration;
 
 namespace MonitorRGBController.Models; 
 
-public class BLEDevice {
-	public DeviceInformation DeviceInformation { get; private set; }
+public class BLEDevice : INotifyPropertyChanged{
+
+	public BLEDevice(DeviceInformation deviceInformation) {
+		DeviceInformation = deviceInformation;
+		OnPropertyChanged(nameof(DeviceInformation));
+	}
+	public DeviceInformation DeviceInformation { get; private init; }
 
 	public string Id => DeviceInformation.Id;
 	public string Name => DeviceInformation.Name;

@@ -6,32 +6,24 @@
         xmlns:local="clr-namespace:MonitorRGBController"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
-    <Grid Margin="10">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
-        </Grid.RowDefinitions>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="Auto" />
-            <ColumnDefinition Width="*" />
-            <ColumnDefinition Width="*" />
-        </Grid.ColumnDefinitions>
-        <Label >Available Devices</Label>
-        <!-- <StackPanel Grid.Column="1" Orientation="Horizontal"> -->
-            <ComboBox Grid.Column="1" x:Name="cbAvailableDevices" ItemsSource="{Binding Path=AvailableDevices}">
-                <ComboBox.ItemTemplate>
-                    <DataTemplate>
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="{Binding UUID}" />
-                            <TextBlock Text=" - " />
-                            <TextBlock Text="{Binding Name}" />
-                        </StackPanel>
-                    </DataTemplate>
-                </ComboBox.ItemTemplate>
-            </ComboBox>
-            <Button Grid.Column="2" x:Name="btnAdd" Margin="10,0,0,0" Click="ListBLEDvices_Click">List Devices</Button>
-        <!-- </StackPanel> -->
-        
-        
-    </Grid>
+    <Window.DataContext>
+        <local:TestViewModel />
+    </Window.DataContext>
+    <DockPanel Margin="10">
+        <StackPanel DockPanel.Dock="Right" Margin="10,0,0,0">
+            <Button Name="btnAddUser" Command="{Binding AddTestCommand}">List</Button>
+            
+        </StackPanel>
+        <TextBox Name="txtWindowTitle" Text="{Binding Path=Title }" Width="150" />
+        <ListView x:Name="ListViewPerson" ItemsSource="{Binding Path=Tests }">  
+            <ListView.ItemTemplate>  
+                <DataTemplate>  
+                    <StackPanel Orientation="Horizontal">  
+                        <TextBlock Text="{Binding Name}"></TextBlock>  
+                        <TextBlock Margin="10,0,0,0" Text="{Binding Age}"></TextBlock>  
+                    </StackPanel>  
+                </DataTemplate>  
+            </ListView.ItemTemplate>  
+        </ListView>  
+    </DockPanel>
 </Window>
